@@ -1,0 +1,255 @@
+<html>
+<head>
+<title>CS 479 Project 1 Hybrid Image</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 90%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+
+
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Julianne Delia <span style="color: #DE3737"></span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CSC 479 AU / Homework 3 / Image Filtering and Hybrid Images</h2>
+
+<div style="float: right; padding: 20px">
+<img src="Original_Images.png" height="250" width="500" />
+<p style="font-size: 14px">Original images used for this assignment.</p>
+</div>
+
+<p> 	For this assignment, I took two images that are the same size and added them together. I followed five different functions in order to complete this assignment. The last two filters, unfortunately, do not work. However, I am working on debugging those two filters, so I hope to have those done soon. That being said, I will be submitting what I have so far. The following list is the list of the five different functions that needed to be used.</p>
+
+<ol>
+<li>cross_correlation_2d</li>
+<li>convolve_2d</li>
+<li>gaussian_blur_kernal_2d</li>
+<li>low_pass</li>
+<li>high_pass</li>
+</ol>
+
+<div style="clear:both">
+<h3>How the 5 Functions Work Together</h3>
+
+<p> 	The cross correlation function turns the images into arrays. The images must become arrays because two images cannot be convolved together. The arrays have to be convolved together. So, the convolution function uses the previous correlation function. The gaussian blur of the new image was the convolved image. That is how the gaussian blur function used the convolution function. I think the gaussian blur is a low pass filter, so that is how those two are connected. And I know the high pass filter must used the low pass filter function in order work. However, my high and low pass filters do not work as of right now.</p>
+
+<h2>The Code that Works</h2>
+This is the code that I wrote for <code>correlation, convolution and gaussian blur</code> that works and produces working outputs.<p>
+
+<pre><code>
+%correlation code
+# correlation 2d
+img1_arr = np.array(img1, dtype=float)
+print(img1_arr)
+img2_arr = np.array(img2, dtype=float)
+print(img1_arr)
+
+img1_arr = np.arange(150).reshape(5,10,3)
+x,y,z = img1_arr.shape
+indices1 = np.vstack(np.unravel_index(np.arange(x*y),(y,x))).T
+np.hstack((img1_arr.reshape(x*y, z), indices1))
+
+img2_arr = np.arange(150).reshape(5,10,3)
+x,y,z = img2_arr.shape
+indices2 = np.vstack(np.unravel_index(np.arange(x*y),(y,x))).T
+np.hstack((img2_arr.reshape(x*y, z), indices2))
+
+corr = signal.correlate2d(indices1, indices2, boundary='symm', mode='same')
+io.imsave('correlation2d.jpg', corr)
+plt.imshow(corr)
+plt.show()
+
+</code></pre>
+
+<pre><code>
+%convolution code
+# convolution 2d
+con = signal.convolve2d(indices1, indices2, boundary='symm', mode='same')
+plt.imshow(con)
+plt.axis('off')
+plt.show()
+
+img3 = cv2.add(img1, img2)
+io.imsave('new_image.jpg', img3)
+plt.figure(1, figsize=(10, 5))
+plt.suptitle('2 in 1', fontsize=20, fontweight='bold')
+plt.subplot(1, 1, 1)
+plt.title('image3', fontsize=10)
+plt.imshow(img3, cmap=plt.cm.gray)
+plt.axis('off')
+plt.show()
+
+</code></pre>
+
+<pre><code>
+%gaussian blur code
+# gaussian blur to both images
+blur_img3 = ndimage.gaussian_filter(img3, 7)
+
+plt.figure(1, figsize=(10, 5))
+plt.suptitle('Gaussian Blur', fontsize=20, fontweight='bold')
+
+plt.subplot(1, 2, 1)
+plt.title('image3', fontsize=10)
+plt.imshow(img3, cmap=plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.title('image3_blurred', fontsize=10)
+plt.imshow(blur_img3, cmap=plt.cm.gray)
+plt.axis('off')
+
+plt.show()
+
+</code></pre>
+
+<h3>Results in a table</h3>
+
+<table border=1>
+<tr>
+<td>
+<img src="cat.png" width="30%"/>
+<img src="dog.png"  width="30%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="new_image.jpg" width="30%"/>
+<img src="blur.png"  width="30%"/>
+</td>
+</tr>
+
+</table>
+
+<div style="clear:both" >
+<p> 	The top two images are the original images of the cat and the dog. The bottom left image is the convolution of the two original images. It is the hybrid of the cat and dog image. The bottom right image is the gaussian blur of the bottom left image.</p>
+</div>
+</body>
+</html>
